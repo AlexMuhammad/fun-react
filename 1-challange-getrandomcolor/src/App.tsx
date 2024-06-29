@@ -1,35 +1,92 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import * as React from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = (): JSX.Element => {
+  const [color, setColor] = React.useState<string>("");
+  const [answers, setAnswers] = React.useState<string[]>([]);
+  const [isCorrect, setIsCorrect] = React.useState<boolean | undefined>(
+    undefined
+  );
+
+  const getRandomColor = () => {
+    const digits = [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+    ];
+
+    const randomColor = new Array(6)
+      .fill("")
+      .map(() => digits[Math.floor(Math.random() * digits.length)])
+      .join("");
+    return `#${randomColor}`;
+  };
+
+  const generateColor = () => {
+    const actualColor = getRandomColor();
+    setColor(actualColor);
+    setAnswers(
+      [actualColor, getRandomColor(), getRandomColor()].sort(
+        () => 0.5 - Math.random()
+      )
+    );
+  };
+
+  React.useEffect(() => {
+    generateColor();
+  }, []);
+
+  const onChooseAnswer = (answer: string) => {
+    if (answer === color) {
+      setIsCorrect(true);
+      setTimeout(() => {
+        generateColor();
+      }, 800);
+      
+      setTimeout(() => {
+        setIsCorrect(undefined)
+      }, 500);
+
+    } else {
+      setIsCorrect(false);
+    }
+  };
 
   return (
-    <>
+    <div className="App">
+      <div className="objectColor" style={{ backgroundColor: color }}></div>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {answers.map((answer, index) => (
+          <button
+            key={index}
+            className="btn-answer"
+            onClick={() => onChooseAnswer(answer)}
+          >
+            {answer}
+          </button>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      {isCorrect === true && (
+        <span className="correct">"Yes, its correct"</span>
+      )}
+      {isCorrect === false && (
+        <span className="wrong">"No, its wrong"</span>
+      )}
+    </div>
+  );
+};
 
-export default App
+export default App;
